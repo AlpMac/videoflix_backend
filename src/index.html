@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Listar Vídeos</title>
+</head>
+<body>
+    <h1>Lista de Vídeos</h1>
+    <ul id="video-list"></ul>
+
+    <script>
+        async function fetchVideos() {
+            try {
+                const response = await fetch('http://localhost:3000/videos');
+                
+                if (!response.ok) {
+                    throw new Error('Erro ao buscar vídeos');
+                }
+                
+                const data = await response.json(); // Parseia a resposta JSON
+                console.log('Dados recebidos:', data);
+                
+                const videoList = document.getElementById('video-list');
+                
+                data.forEach(video => {
+                    const listItem = document.createElement('li');
+                    listItem.textContent = `${video.titulo}: ${video.descricao} (URL: ${video.url})`;
+                    videoList.appendChild(listItem);
+                });
+            } catch (error) {
+                console.error('Erro:', error);
+            }
+        }
+
+        // Chama a função fetchVideos quando a página carrega
+        window.onload = fetchVideos;
+    </script>
+</body>
+</html>

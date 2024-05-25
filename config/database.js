@@ -3,10 +3,10 @@ const {Pool} = pkg;
 
 // Configurar a conexão com o banco de dados PostgreSQL
 const pool = new Pool({
-  user: 'seu_usuario',           // substitua pelo seu usuário PostgreSQL
+  user: 'postgres',           // substitua pelo seu usuário PostgreSQL
   host: 'localhost',             // ou o endereço do seu servidor PostgreSQL
-  database: 'alpaclean',         // nome do seu banco de dados
-  password: 'sua_senha',         // substitua pela sua senha PostgreSQL
+  database: 'videoflix',         // nome do seu banco de dados
+  password: 'postgres',         // substitua pela sua senha PostgreSQL
   port: 5432,                    // porta padrão do PostgreSQL
 });
 
