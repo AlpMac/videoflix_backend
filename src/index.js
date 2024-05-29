@@ -4,6 +4,8 @@ import routerLogin from './routers_login.js';
 import routerMenu from './routers_menu.js';
 import routerUsuario from './routers_usuario.js';
 import routerVideo from './routers_video.js';
+import royterHome from './routers_home.js';
+import routerHome from './routers_home.js';
 
 const app = express();  
 // Middleware form parsing JSON data
@@ -15,6 +17,7 @@ app.use(routerLogin);
 app.use(routerMenu);
 app.use(routerUsuario);
 app.use(routerVideo);
+app.use(routerHome)
 
 
 app.listen(3000, () => {
