@@ -10,6 +10,7 @@ const pool = new Pool({
   port: 5432,                    // porta padrão do PostgreSQL
 });
 
+console.log ('Conectado ao banco de dados com sucesso!');
 // Função para ajudar a rodar as queries
 function query(command, params) {
   // Utilizaremos promise para aguardar a resposta do banco de dados de sucesso ou erro
