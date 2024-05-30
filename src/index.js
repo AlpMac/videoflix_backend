@@ -4,7 +4,8 @@ import routerLogin from './routers_login.js';
 import routerMenu from './routers_menu.js';
 import routerUsuario from './routers_usuario.js';
 import routerVideo from './routers_video.js';
-import routerHome from './routers_home.js';  // Fixed typo
+import routerHome from './routers_home.js';  
+import routerlistaCanais from './routers_listaCanais.js';
 
 const app = express();  
 // Middleware for parsing JSON data
@@ -17,6 +18,7 @@ app.use(routerMenu);
 app.use(routerUsuario);
 app.use(routerVideo);
 app.use(routerHome);
+app.use(routerlistaCanais);  
 
 ///////////////////////////////////////
 import path from 'path';
