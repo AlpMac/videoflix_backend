@@ -18,6 +18,7 @@ const listarVideo = async (req, res) => {
         v.views as views,
         v.likes as likes,
         v.id_enviado as id_enviado,
+        v.id_categoria as id_categoria,
 
         STRING_AGG(vc.arq_complemento, ', ') AS arquivos_complementares
         FROM tbl_videos v
