@@ -29,6 +29,9 @@ const __dirname = path.dirname(__filename);
 // Line to serve static images from the 'envios/thumbnail' directory
 app.use('/envios_thumbnail', express.static(path.join(__dirname, 'envios/thumbnail')));
 app.use('/envios_imagemPerfil', express.static(path.join(__dirname, 'envios/imagemPerfil')));
+//Pegaremos o video 
+app.use('/play_video', express.static(path.join(__dirname, 'envios/videos/')));
+
 
 app.listen(3003, () => {
     console.log('Server is running on port 3003');  // Corrected port number

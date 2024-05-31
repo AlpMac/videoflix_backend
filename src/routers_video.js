@@ -5,7 +5,7 @@ import ControllerVideo from '../src/controllers/controller.video.js';
 const routerVideo = Router();
 
 
-routerVideo.get('/video', ControllerVideo.listarVideo);
+routerVideo.get('/video/:id?', ControllerVideo.listarVideo);
 
 routerVideo.post('/video', ControllerVideo.inserirVideo);
 
