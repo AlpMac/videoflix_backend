@@ -31,6 +31,9 @@ app.use('/envios_thumbnail', express.static(path.join(__dirname, 'envios/thumbna
 app.use('/envios_imagemPerfil', express.static(path.join(__dirname, 'envios/imagemPerfil')));
 //Pegaremos o video 
 app.use('/play_video', express.static(path.join(__dirname, 'envios/videos/')));
+//Usado para download dos arquivos complementares
+app.use('/download_arquivo', express.static(path.join(__dirname, 'envios/arquivos/')));
+
 
 
 app.listen(3003, () => {
