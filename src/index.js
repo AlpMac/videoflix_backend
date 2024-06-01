@@ -6,6 +6,8 @@ import routerUsuario from './routers_usuario.js';
 import routerVideo from './routers_video.js';
 import routerHome from './routers_home.js';  
 import routerlistaCanais from './routers_listaCanais.js';
+import routerMeusVideos from './routers_meusVideos.js';
+import routerMeusVideosFavoritos from './routers.meusVideosFavoritos.js';
 
 const app = express();  
 // Middleware for parsing JSON data
@@ -19,7 +21,8 @@ app.use(routerUsuario);
 app.use(routerVideo);
 app.use(routerHome);
 app.use(routerlistaCanais);  
-
+app.use(routerMeusVideos);
+app.use(routerMeusVideosFavoritos);
 ///////////////////////////////////////
 import path from 'path';
 import { fileURLToPath } from 'url';
