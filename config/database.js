@@ -5,8 +5,7 @@ const {Pool} = pkg;
 const pool = new Pool({
   user: 'postgres',           // substitua pelo seu usuário PostgreSQL
   host: 'localhost',             // ou o endereço do seu servidor PostgreSQL
-  database: 'videoflix',  
-  //Cata       // nome do seu banco de dados
+  database: 'videoflix',        // nome do seu banco de dados
   password: 'postgres',         // substitua pela sua senha PostgreSQL
   port: 5432,                    // porta padrão do PostgreSQL
 });
