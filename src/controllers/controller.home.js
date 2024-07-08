@@ -20,6 +20,7 @@ const listarHome = async (req, res) => {
     v.thumbnail as thumbnail,
     v.views as views,
     v.likes as likes,
+    v.id_categoria as id_categoria,
     
 
     STRING_AGG(vc.arq_complemento, ', ') AS arquivos_complementares
@@ -29,7 +30,7 @@ const listarHome = async (req, res) => {
         JOIN tbl_menu_principal m ON c.id_menu_principal = m.id_menu_principal
         JOIN tbl_sub_menu s ON c.id_sub_menu = s.id_sub_menu
         LEFT JOIN tbl_videos_complementos vc ON v.id = vc.id_tbl_videos
-        GROUP BY v.likes,v.views,v.thumbnail,u.url_perfil,v.id,u.nome_apelido,u.local_trabalho,u.tratamento_formal, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu;  `;
+        GROUP BY v.id_categoria,v.likes,v.views,v.thumbnail,u.url_perfil,v.id,u.nome_apelido,u.local_trabalho,u.tratamento_formal, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu;  `;
   
     try {
      
