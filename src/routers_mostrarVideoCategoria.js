@@ -4,7 +4,7 @@ import MostrarVideoCategoria from '../src/controllers/controller.mostraVideoCate
 const routerMostrarVideoCategoria = Router();
 
 
-routerMostrarVideoCategoria.get('/categoria/:id?', MostrarVideoCategoria.listarVideoCategoria);
+routerMostrarVideoCategoria.get('/categoria/:id_categoria?', MostrarVideoCategoria.listarVideoCategoria);
 
 
 

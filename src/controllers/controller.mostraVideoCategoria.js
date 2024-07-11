@@ -4,8 +4,7 @@ const db = pool;
 
 const listarVideoCategoria = async (req, res) => {
   // Extrai o id dos parâmetros da requisição
-  const { id } = req.params;
-  console.log("id do where " + id);
+  const { id_categoria } = req.params;
 
   // Define a base da query SQL
   let query = `
@@ -34,9 +33,9 @@ const listarVideoCategoria = async (req, res) => {
   `;
 
   const params = []; 
-  if (id) {
+  if (id_categoria) {
     query += `WHERE v.id_categoria = $1`;
-    params.push(id);
+    params.push(id_categoria);
   }
 
   // Adiciona o GROUP BY após a condição WHERE
