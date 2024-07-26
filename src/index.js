@@ -11,6 +11,7 @@ import routerMeusVideosFavoritos from './routers.meusVideosFavoritos.js';
 import routerMostrarVideoCategoria from './routers_mostrarVideoCategoria.js';
 import routerCategoria from './routers_categoria.js';
 import routerNotificacao from './routers_notificacao.js';
+import routerRelatorios from './routers_relatorios.js';
 
 const app = express();  
 // Middleware for parsing JSON data
@@ -30,6 +31,7 @@ app.use(routerMeusVideosFavoritos);
 app.use(routerMostrarVideoCategoria);
 app.use(routerCategoria);
 app.use(routerNotificacao);
+app.use(routerRelatorios);
 ///////////////////////////////////////
 import path from 'path';
 import { fileURLToPath } from 'url';
