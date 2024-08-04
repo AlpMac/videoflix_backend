@@ -1,16 +1,13 @@
 import { Router } from "express";
 import ControllerVideo from '../src/controllers/controller.video.js';
 
-//Ira manipular todas as rotas da aplicação
 const routerVideo = Router();
 
 
+// Rotas
 routerVideo.get('/video/:id?', ControllerVideo.listarVideo);
-
-routerVideo.post('/video', ControllerVideo.inserirVideo);
-
+routerVideo.post('/enviar-video-dados', ControllerVideo.inserirVideo);
 routerVideo.put('/video', ControllerVideo.editarVideo);
-
 routerVideo.delete('/video', ControllerVideo.deletarVideo);
 
 export default routerVideo;

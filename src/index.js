@@ -13,6 +13,8 @@ import routerCategoria from './routers_categoria.js';
 import routerNotificacao from './routers_notificacao.js';
 import routerRelatorios from './routers_relatorios.js';
 
+import routerVideoUpload from './routers_video_upload.js';
+
 const app = express();  
 // Middleware for parsing JSON data
 app.use(express.json());
@@ -32,6 +34,7 @@ app.use(routerMostrarVideoCategoria);
 app.use(routerCategoria);
 app.use(routerNotificacao);
 app.use(routerRelatorios);
+app.use(routerVideoUpload);
 ///////////////////////////////////////
 import path from 'path';
 import { fileURLToPath } from 'url';

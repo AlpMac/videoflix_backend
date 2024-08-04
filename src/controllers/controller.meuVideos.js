@@ -39,13 +39,13 @@ const listarMeusVideos = async (req, res) => {
     }
 
     try {
-        console.log('Iniciando a execução da query SQL...');
-        console.log('Query:', query);
-        console.log('Params:', params);
+        //console.log('Iniciando a execução da query SQL...');
+        //console.log('Query:', query);
+        //console.log('Params:', params);
 
         const result = await db.query(query, params);
 
-        console.log('Exemplo de uso das variáveis:'+JSON.stringify(result, null, 2) );
+        //console.log('Exemplo de uso das variáveis:'+JSON.stringify(result, null, 2) );
 
 
         if (result && result.length > 0) {
@@ -59,8 +59,8 @@ const listarMeusVideos = async (req, res) => {
                 const primeiroArquivo = arquivosComplementares[0];
                 const segundoArquivo = arquivosComplementares[1];
 
-                console.log(primeiroArquivo); // Exibir o primeiro arquivo no console
-                console.log(segundoArquivo); // Exibir o segundo arquivo no console
+               // console.log(primeiroArquivo); // Exibir o primeiro arquivo no console
+               // console.log(segundoArquivo); // Exibir o segundo arquivo no console
             }
 
             res.status(200).json(result); // Envia a resposta em formato JSON

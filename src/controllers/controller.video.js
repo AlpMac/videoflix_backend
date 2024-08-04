@@ -1,6 +1,4 @@
-import pool from '../../config/database.js';
-
-const db = pool;
+import db from '../../config/database.js';
 
 const listarVideo = async (req, res) => {
     const { id } = req.params;
@@ -19,7 +17,6 @@ const listarVideo = async (req, res) => {
         v.likes as likes,
         v.id_enviado as id_enviado,
         v.id_categoria as id_categoria,
-
         STRING_AGG(vc.arq_complemento, ', ') AS arquivos_complementares
         FROM tbl_videos v
         JOIN tbl_usuarios u ON v.id_enviado = u.id
@@ -28,64 +25,75 @@ const listarVideo = async (req, res) => {
         JOIN tbl_sub_menu s ON c.id_sub_menu = s.id_sub_menu
         LEFT JOIN tbl_videos_complementos vc ON v.id = vc.id_tbl_videos`;
 
-
     const params = [];
-    // Adicionar cláusula WHERE se o ID for fornecido
     if (id) {
-        query += ` WHERE v.id = $1 GROUP BY u.url_perfil,u.nome_apelido,u.local_trabalho,u.tratamento_formal,v.id, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu`;
+        query += ` WHERE v.id = $1 GROUP BY u.url_perfil, u.nome_apelido, u.local_trabalho, u.tratamento_formal, v.id, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu`;
         params.push(id);
     } else {
         query += ` GROUP BY v.id, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu`;
     }
 
     try {
-        console.log('Iniciando a execução da query SQL...');
-        console.log('Query:', query);
-        console.log('Params:', params);
+        const resultSelect = await db.query(query, params);
 
-        const result = await db.query(query, params);
+        //console.log('Exemplo de uso das variáveis:' + JSON.stringify(resultSelect, null, 2));
 
-        console.log('Exemplo de uso das variáveis:'+JSON.stringify(result, null, 2) );
-
-
-        if (result && result.length > 0) {
-            const video_achado = result[0];
-
-            // Extrair os nomes dos arquivos complementares do primeiro registro do resultado
+        if (Array.isArray(resultSelect) && resultSelect.length > 0) {
+            const video_achado = resultSelect[0];
             const arquivosComplementares = video_achado.arquivos_complementares ? video_achado.arquivos_complementares.split(', ') : [];
-
-            // Exemplo de uso das variáveis
             if (arquivosComplementares.length > 0) {
-                const primeiroArquivo = arquivosComplementares[0];
-                const segundoArquivo = arquivosComplementares[1];
-
-                console.log(primeiroArquivo); // Exibir o primeiro arquivo no console
-                console.log(segundoArquivo); // Exibir o segundo arquivo no console
+              //  console.log('Arquivos Complementares:', arquivosComplementares);
             }
 
-            res.status(200).json(video_achado); // Envia a resposta em formato JSON
+            res.status(200).json(video_achado);
         } else {
             res.status(404).json({ error: 'Vídeo não encontrado' });
         }
     } catch (err) {
         console.error('Erro ao executar a query SQL:', err.message);
-        res.status(400).json({ error: err.message }); // Envia o erro como JSON
+        res.status(400).json({ error: err.message });
     }
 };
-
 
 const inserirVideo = async (req, res) => {
-    const { titulo, descricao, url } = req.body;
-    const query = `INSERT INTO tbl_videos (titulo, descricao, url) VALUES ($1, $2, $3) RETURNING id, titulo, descricao, url`;
-    const params = [titulo, descricao, url];
+    //console.log('Corpo da requisição:', req.body);
+
+    const titulo = req.body.titulo;
+    const descricao = req.body.descricao;
+    const url = req.body.url;
+    const id_enviado = req.body.id_enviado;
+    const id_categoria = req.body.id_categoria;
+    const thumbnail = req.body.thumbnail;
+
+    //console.log('titulo', titulo);
+
+    const queryText = `INSERT INTO tbl_videos (titulo, descricao, url, id_enviado, id_categoria, thumbnail, views, likes)
+                       VALUES ($1, $2, $3, $4, $5, $6, 0, 0) RETURNING *`;
+    const params = [titulo, descricao, url, id_enviado, id_categoria, thumbnail];
 
     try {
-        const result = await db.query(query, params);
-        res.status(201).send(result.rows[0]); // Retorna o primeiro item do array de resultados
+        const rows = await db.query(queryText, params); // Use a função query revisada
+        //console.log('Resultado da query:', rows); // Verifique a estrutura do resultado
+
+        if (rows && Array.isArray(rows) && rows.length > 0) {
+            res.status(201).json({
+                message: 'Vídeo inserido com sucesso!',
+                data: rows[0] // Retorna o primeiro item de rows
+            });
+        } else {
+            throw new Error('Nenhum dado retornado pela query.');
+        }
     } catch (err) {
-        res.status(400).send('Erro ao inserir o vídeo!');
+        console.error('Erro ao inserir o vídeo:', err);
+        res.status(400).json({
+            error: 'Erro ao inserir o vídeo!',
+            details: err.message
+        });
     }
 };
+
+
+
 
 const editarVideo = async (req, res) => {
     const { id } = req.params;
@@ -95,9 +103,9 @@ const editarVideo = async (req, res) => {
 
     try {
         const result = await db.query(query, params);
-        res.status(200).send(result.rows[0]); // Retorna o primeiro item do array de resultados
+        res.status(200).json(result.rows[0]);
     } catch (err) {
-        res.status(400).send('Erro ao editar o vídeo!');
+        res.status(400).json({ error: 'Erro ao editar o vídeo!' });
     }
 };
 
@@ -108,9 +116,9 @@ const deletarVideo = async (req, res) => {
 
     try {
         const result = await db.query(query, params);
-        res.status(200).send(result.rows[0]); // Retorna o primeiro item do array de resultados
+        res.status(200).json(result.rows[0]);
     } catch (err) {
-        res.status(400).send('Erro ao deletar o vídeo!');
+        res.status(400).json({ error: 'Erro ao deletar o vídeo!' });
     }
 };
 
