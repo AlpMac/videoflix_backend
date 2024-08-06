@@ -94,17 +94,40 @@ const inserirVideo = async (req, res) => {
 
 
 
-
 const editarVideo = async (req, res) => {
-    const { id } = req.params;
-    const { titulo, descricao, url } = req.body;
-    const query = `UPDATE tbl_videos SET titulo = $1, descricao = $2, url = $3 WHERE id = $4 RETURNING id, titulo, descricao, url`;
-    const params = [titulo, descricao, url, id];
+    console.log('Corpo da requisição:', req.body);
+    const { titulo, descricao, url, id_categoria, thumbnail, id } = req.body;
+    
+    console.log('Título:', titulo);
+    console.log('Descrição:', descricao);
+    console.log('URL:', url);
+    console.log('ID Categoria:', id_categoria);
+    console.log('Thumbnail:', thumbnail);
+    console.log('ID:', id);
+
+    const query = `UPDATE tbl_videos SET 
+                    titulo = $1,
+                    descricao = $2,
+                    url = $3,
+                    id_categoria = $4,
+                    thumbnail = $5
+                    WHERE id = $6`;
+
+    const params = [titulo, descricao, url, id_categoria, thumbnail, id];
 
     try {
         const result = await db.query(query, params);
-        res.status(200).json(result.rows[0]);
+        console.log('Resultado da query:', result);
+        
+        // Verifica se a atualização realmente afetou alguma linha
+        if (result.rowCount === 0) {
+            console.log('Nenhum registro encontrado para o ID fornecido.');
+            return res.status(404).json({ error: 'Nenhum vídeo encontrado com o ID fornecido.' });
+        }
+
+        res.status(200).json({ message: 'Vídeo atualizado com sucesso!' });
     } catch (err) {
+        console.error('Erro ao editar o vídeo:', err);
         res.status(400).json({ error: 'Erro ao editar o vídeo!' });
     }
 };
