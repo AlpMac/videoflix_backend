@@ -55,35 +55,53 @@ const listarVideo = async (req, res) => {
     }
 };
 
+//inserir video 
 const inserirVideo = async (req, res) => {
-    //console.log('Corpo da requisição:', req.body);
-
     const titulo = req.body.titulo;
     const descricao = req.body.descricao;
     const url = req.body.url;
     const id_enviado = req.body.id_enviado;
     const id_categoria = req.body.id_categoria;
     const thumbnail = req.body.thumbnail;
-
-    //console.log('titulo', titulo);
-
-    const queryText = `INSERT INTO tbl_videos (titulo, descricao, url, id_enviado, id_categoria, thumbnail, views, likes)
-                       VALUES ($1, $2, $3, $4, $5, $6, 0, 0) RETURNING *`;
-    const params = [titulo, descricao, url, id_enviado, id_categoria, thumbnail];
+    const pdf = req.body.pdf;
 
     try {
-        const rows = await db.query(queryText, params); // Use a função query revisada
-        //console.log('Resultado da query:', rows); // Verifique a estrutura do resultado
+        // Inicia a transação
+        await db.query('BEGIN');
 
-        if (rows && Array.isArray(rows) && rows.length > 0) {
-            res.status(201).json({
-                message: 'Vídeo inserido com sucesso!',
-                data: rows[0] // Retorna o primeiro item de rows
-            });
-        } else {
-            throw new Error('Nenhum dado retornado pela query.');
+        // Inserir vídeo na tbl_videos
+        const queryTextVideo = `INSERT INTO tbl_videos (titulo, descricao, url, id_enviado, id_categoria, thumbnail, views, likes)
+                                VALUES ($1, $2, $3, $4, $5, $6, 0, 0) RETURNING id`;
+        const paramsVideo = [titulo, descricao, url, id_enviado, id_categoria, thumbnail];
+        const resultVideo = await db.query(queryTextVideo, paramsVideo);
+
+        // Verifica se o vídeo foi inserido
+        
+        if (Array.isArray(resultVideo) && resultVideo.length === 0) {
+            throw new Error('Erro ao inserir o vídeo na tbl_videos.');
         }
+        console.log('Resultado da query:', resultVideo[0].id);    
+        const videoId = resultVideo[0].id;
+
+        // Se houver um PDF, insere na tbl_videos_complementos
+        if (pdf) {
+            const queryTextComplemento = `INSERT INTO tbl_videos_complementos (id_tbl_videos, arq_complemento)
+                                          VALUES ($1, $2)`;
+            const paramsComplemento = [videoId, pdf];
+            console.log('Inserindo complemento:', paramsComplemento);
+            await db.query(queryTextComplemento, paramsComplemento);
+        }
+
+        // Finaliza a transação
+        await db.query('COMMIT');
+
+        res.status(201).json({
+            message: 'Vídeo inserido com sucesso!',
+            data: { id: videoId }
+        });
     } catch (err) {
+        // Em caso de erro, faz rollback na transação
+        await db.query('ROLLBACK');
         console.error('Erro ao inserir o vídeo:', err);
         res.status(400).json({
             error: 'Erro ao inserir o vídeo!',
@@ -94,41 +112,63 @@ const inserirVideo = async (req, res) => {
 
 
 
+//UPDATE
 const editarVideo = async (req, res) => {
-    console.log('Corpo da requisição:', req.body);
-    const { titulo, descricao, url, id_categoria, thumbnail, id } = req.body;
-    
-    console.log('Título:', titulo);
-    console.log('Descrição:', descricao);
-    console.log('URL:', url);
-    console.log('ID Categoria:', id_categoria);
-    console.log('Thumbnail:', thumbnail);
-    console.log('ID:', id);
+    const titulo = req.body.titulo;
+    const descricao = req.body.descricao;
+    const url = req.body.url;
+    const id_categoria = req.body.id_categoria;
+    const thumbnail = req.body.thumbnail;
+    const pdf = req.body.pdf;
+    const id = req.body.id;
 
-    const query = `UPDATE tbl_videos SET 
-                    titulo = $1,
-                    descricao = $2,
-                    url = $3,
-                    id_categoria = $4,
-                    thumbnail = $5
-                    WHERE id = $6`;
+    const queryUpdateVideo = `UPDATE tbl_videos SET 
+                                titulo = $1,
+                                descricao = $2,
+                                url = $3,
+                                id_categoria = $4,
+                                thumbnail = $5
+                              WHERE id = $6`;
 
-    const params = [titulo, descricao, url, id_categoria, thumbnail, id];
+    const paramsUpdateVideo = [titulo, descricao, url, id_categoria, thumbnail, id];
 
     try {
-        const result = await db.query(query, params);
-        console.log('Resultado da query:', result);
-        
+        // Inicia a transação
+        await db.query('BEGIN');
+
+        // Atualiza os dados na tabela tbl_videos
+        const rows = await db.query(queryUpdateVideo, paramsUpdateVideo);
+
+        console.log('Resultado da query lengh:',rows.length);
         // Verifica se a atualização realmente afetou alguma linha
-        if (result.rowCount === 0) {
-            console.log('Nenhum registro encontrado para o ID fornecido.');
+        if (!rows) {
+            await db.query('ROLLBACK');
             return res.status(404).json({ error: 'Nenhum vídeo encontrado com o ID fornecido.' });
         }
 
+        // Se houver um PDF, atualiza ou insere na tbl_videos_complementos
+        if (pdf) {
+            const querySelectComplemento = `SELECT id FROM tbl_videos_complementos WHERE id_tbl_videos = $1`;
+            const complementos = await db.query(querySelectComplemento, [id]);
+
+            if (complementos.length > 0) {
+                const queryUpdateComplemento = `UPDATE tbl_videos_complementos SET arq_complemento = $1 WHERE id_tbl_videos = $2`;
+                await db.query(queryUpdateComplemento, [pdf, id]);
+            } else {
+                const queryInsertComplemento = `INSERT INTO tbl_videos_complementos (id_tbl_videos, arq_complemento) VALUES ($1, $2)`;
+                await db.query(queryInsertComplemento, [id, pdf]);
+            }
+        }
+
+        // Finaliza a transação
+        await db.query('COMMIT');
+
         res.status(200).json({ message: 'Vídeo atualizado com sucesso!' });
     } catch (err) {
+        // Em caso de erro, faz rollback na transação
+        await db.query('ROLLBACK');
         console.error('Erro ao editar o vídeo:', err);
-        res.status(400).json({ error: 'Erro ao editar o vídeo!' });
+        res.status(400).json({ error: 'Erro ao editar o vídeo!', details: err.message });
     }
 };
 
