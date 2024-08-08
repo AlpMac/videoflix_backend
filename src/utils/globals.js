@@ -1,0 +1,4 @@
+export const UPDATE_VIDEO = "O VIDEO FOI ATUALIZADO";
+export const DELETE_VIDEO = "O VIDEO FOI DELETADO";
+export const UPLOAD_VIDEO = "O VIDEO FOI ENVIADO";
+

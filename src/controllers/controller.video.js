@@ -1,4 +1,5 @@
 import db from '../../config/database.js';
+import { DELETE_VIDEO,UPDATE_VIDEO,UPLOAD_VIDEO } from '../utils/globals.js';
 
 const listarVideo = async (req, res) => {
     const { id } = req.params;
@@ -64,6 +65,7 @@ const inserirVideo = async (req, res) => {
     const id_categoria = req.body.id_categoria;
     const thumbnail = req.body.thumbnail;
     const pdf = req.body.pdf;
+    const usuariologado = req.body.usuarioLogado;
 
     try {
         // Inicia a transação
@@ -88,9 +90,27 @@ const inserirVideo = async (req, res) => {
             const queryTextComplemento = `INSERT INTO tbl_videos_complementos (id_tbl_videos, arq_complemento)
                                           VALUES ($1, $2)`;
             const paramsComplemento = [videoId, pdf];
-            console.log('Inserindo complemento:', paramsComplemento);
             await db.query(queryTextComplemento, paramsComplemento);
         }
+
+         // Inserir vídeo na tbl_videos
+         const queryLogUploadVideo = `
+         INSERT INTO tbl_log_videos (
+            id_video,
+            tipo_modificacao,
+            responsavel_modificacao,
+            hora_modificacao
+        ) VALUES (
+            $1,  
+            $2,  
+            $3,  
+            NOW()  
+        );
+         
+         `;
+        const paramsUploadVideo = [videoId, UPLOAD_VIDEO, usuariologado];
+        await db.query(queryLogUploadVideo, paramsUploadVideo);
+        
 
         // Finaliza a transação
         await db.query('COMMIT');
