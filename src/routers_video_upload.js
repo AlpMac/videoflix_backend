@@ -11,7 +11,7 @@ const storage = multer.diskStorage({
             cb(null, 'envios/videos'); // Salva o vídeo na pasta 'envios/videos'
         } else if (file.fieldname === 'filethumbnail') {
             cb(null, 'envios/thumbnail'); // Salva a thumbnail na pasta 'envios/thumbnail'
-        } else if (file.fieldname === 'filepdf') {
+        } else if (file.fieldname === 'filepdf' || file.fieldname === 'filepdfview') {
             cb(null, 'envios/arquivos'); // Salva o PDF na pasta 'envios/arquivos'
         }
     },
@@ -30,21 +30,29 @@ routerVideoUpload.post('/enviar-video',
     upload.fields([
         { name: 'file', maxCount: 1 },
         { name: 'filethumbnail', maxCount: 1 },
-        { name: 'filepdf', maxCount: 1 }
+        { name: 'filepdf', maxCount: 1 },
+        { name: 'filepdfview', maxCount: 1 }
     ]), 
     (req, res) => {
         const videoFile = req.files?.file ? req.files.file[0] : null;
         const thumbnailFile = req.files?.filethumbnail ? req.files.filethumbnail[0] : null;
         const pdfFile = req.files?.filepdf ? req.files.filepdf[0] : null;
+        const pdfFileView = req.files?.filepdfview ? req.files.filepdfview[0] : null
 
         // Verifica se nenhum arquivo foi enviado
-        if (!videoFile && !thumbnailFile && !pdfFile) {
+        if (!videoFile && !thumbnailFile && !pdfFile && !pdfFileView) {
             return res.status(400).send('Nenhum arquivo enviado.');
         }
 
         // Cria a resposta com base nos arquivos recebidos
         const response = {};
 
+        if (pdfFileView != null) {
+            response.pdfFileView = pdfFileView.filename;
+            response.video = pdfFileView.filename;
+            response.thumbnail = pdfFileView.filename;
+        }
+        else{
         // Se o arquivo de vídeo estiver presente, inclui o nome na resposta
         if (videoFile != null) {
             response.video = videoFile.filename;
@@ -90,7 +98,7 @@ routerVideoUpload.post('/enviar-video',
             response.thumbnail = thumbnailFile.filename;
             response.pdf = pdfFile.filename;
         }
-
+    }
         // Envia a resposta com os nomes dos arquivos
         res.status(200).json(response);
     }
