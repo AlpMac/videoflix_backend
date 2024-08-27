@@ -1,5 +1,5 @@
 import db from '../../config/database.js';
-import { DELETE_VIDEO,UPDATE_VIDEO,UPLOAD_VIDEO } from '../utils/globals.js';
+import { DELETE_VIDEO,UPDATE_VIDEO,UPLOAD_VIDEO,UPLOAD_PDF } from '../utils/globals.js';
 
 const listarVideo = async (req, res) => {
     const { id } = req.params;
@@ -17,6 +17,7 @@ const listarVideo = async (req, res) => {
         v.views as views,
         v.likes as likes,
         v.id_enviado as id_enviado,
+        COALESCE(f.curtido, false) AS curtido,
         v.id_categoria as id_categoria,
         STRING_AGG(vc.arq_complemento, ', ') AS arquivos_complementares
         FROM tbl_videos v
@@ -24,11 +25,28 @@ const listarVideo = async (req, res) => {
         JOIN tbl_categoria c ON v.id_categoria = c.id
         JOIN tbl_menu_principal m ON c.id_menu_principal = m.id_menu_principal
         JOIN tbl_sub_menu s ON c.id_sub_menu = s.id_sub_menu
+        LEFT JOIN tbl_favorito f ON v.id = f.id_video
         LEFT JOIN tbl_videos_complementos vc ON v.id = vc.id_tbl_videos`;
 
     const params = [];
     if (id) {
-        query += ` WHERE v.id = $1 GROUP BY u.url_perfil, u.nome_apelido, u.local_trabalho, u.tratamento_formal, v.id, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu`;
+        query += ` WHERE v.id = $1
+         GROUP BY v.id, 
+         v.titulo, 
+         v.descricao, 
+         v.url, 
+         m.descricao_menu, 
+         s.descricao_submenu, 
+         u.nome_apelido, 
+         u.local_trabalho, 
+         u.tratamento_formal, 
+         u.url_perfil, 
+         v.thumbnail, 
+         v.views, 
+         v.likes, 
+         v.id_enviado, 
+         v.id_categoria, 
+         f.curtido`;
         params.push(id);
     } else {
         query += ` GROUP BY v.id, v.titulo, v.descricao, v.url, m.descricao_menu, s.descricao_submenu`;
@@ -82,7 +100,6 @@ const inserirVideo = async (req, res) => {
         if (Array.isArray(resultVideo) && resultVideo.length === 0) {
             throw new Error('Erro ao inserir o vídeo na tbl_videos.');
         }
-        console.log('Resultado da query:', resultVideo[0].id);    
         const videoId = resultVideo[0].id;
 
         // Se houver um PDF, insere na tbl_videos_complementos
@@ -108,7 +125,15 @@ const inserirVideo = async (req, res) => {
         );
          
          `;
-        const paramsUploadVideo = [videoId, UPLOAD_VIDEO, usuariologado];
+         let paramsUploadVideo = [];
+         //ser for PDF salvara com nome UPLOAD no tbl_log_videos
+        
+         if (url.endsWith('.pdf')) {
+            paramsUploadVideo = [videoId, UPLOAD_PDF, usuariologado];
+        } else {
+            paramsUploadVideo = [videoId, UPLOAD_VIDEO, usuariologado];
+        }
+        
         await db.query(queryLogUploadVideo, paramsUploadVideo);
         
 
@@ -159,7 +184,6 @@ const editarVideo = async (req, res) => {
         // Atualiza os dados na tabela tbl_videos
         const rows = await db.query(queryUpdateVideo, paramsUpdateVideo);
 
-        console.log('Resultado da query lengh:',rows.length);
         // Verifica se a atualização realmente afetou alguma linha
         if (!rows) {
             await db.query('ROLLBACK');

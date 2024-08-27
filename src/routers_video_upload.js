@@ -39,9 +39,17 @@ routerVideoUpload.post('/enviar-video',
         const pdfFile = req.files?.filepdf ? req.files.filepdf[0] : null;
         const pdfFileView = req.files?.filepdfview ? req.files.filepdfview[0] : null
 
+console.log("videoFile "+videoFile);
+console.log("thumbnailFile "+thumbnailFile);
+console.log("pdfFile "+pdfFile);
+console.log("pdfFileView "+pdfFileView);
+
+
+
+
         // Verifica se nenhum arquivo foi enviado
         if (!videoFile && !thumbnailFile && !pdfFile && !pdfFileView) {
-            return res.status(400).send('Nenhum arquivo enviado.');
+            return res.status(400).send('Nenhum dado foi alterado.');
         }
 
         // Cria a resposta com base nos arquivos recebidos

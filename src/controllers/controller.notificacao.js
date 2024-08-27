@@ -6,7 +6,11 @@ const db = pool;
 const listarNotificacao = async (req, res) => {
     //Usando o STRING_AGG para concatenar os arquivos complementares e mostrar em uma única linha
     // lembrar de usar 
-    const query = `SELECT * from tbl_notificacao_admin ORDER BY data_envio DESC;`;
+    const query = `SELECT n.id, n.notificacao, n.id_enviado, n.data_envio, u.*
+                  FROM public.tbl_notificacao_admin n
+                  JOIN tbl_usuarios u ON n.id_enviado = u.id
+                  ORDER BY n.data_envio DESC
+                  ;`;
   
     try {
      

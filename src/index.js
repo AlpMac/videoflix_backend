@@ -14,6 +14,7 @@ import routerNotificacao from './routers_notificacao.js';
 import routerRelatorios from './routers_relatorios.js';
 
 import routerVideoUpload from './routers_video_upload.js';
+import routerAddDeleteVideoFavorito from './routers.AddDeleteVideoFavorito.js';
 
 const app = express();  
 // Middleware for parsing JSON data
@@ -35,6 +36,7 @@ app.use(routerCategoria);
 app.use(routerNotificacao);
 app.use(routerRelatorios);
 app.use(routerVideoUpload);
+app.use(routerAddDeleteVideoFavorito);
 ///////////////////////////////////////
 import path from 'path';
 import { fileURLToPath } from 'url';
